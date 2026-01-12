@@ -8,3 +8,8 @@ default:
 blank-start:
 	cd srcs && bash ./run_docker.sh --blank-start
 
+.PHONY: clean
+blank-start:
+	cd srcs && bash ./run_docker.sh --clean
+
+
