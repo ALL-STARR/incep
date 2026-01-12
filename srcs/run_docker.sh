@@ -13,7 +13,6 @@ if [[ "$1" == "--blank-start" ]]; then
         BLANK_START=true
 fi
 
-sed -i "s|/home/[^/]\+/data/|/home/$USER/data/|g" .env
 
 if [ ! -f .env ]; then
 				echo -e "\e[31m--> .env file not found. Please create it based on the .env.example file.\e[0m"

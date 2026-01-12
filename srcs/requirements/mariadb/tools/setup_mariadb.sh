@@ -3,21 +3,14 @@
 echo "🚀 Démarrage de l'initialisation de MariaDB..."
 
 # Vérification des variables d'environnement
-if [ -z "$SQL_ROOT_PASSWORD" ] || [ -z "$SQL_DATABASE" ] || [ -z "$SQL_USER" ] || [ -z "$SQL_PASSWORD" ]; then
+if [ -z "$SQL_DATABASE" ] || [ -z "$SQL_USER" ]; then
     echo "❌ Variables d'environnement requises manquantes."
     exit 1
 fi
 
-# Vérifier si MariaDB est déjà initialisé
-if [ -d "/var/lib/mysql/mysql" ]; then
-    echo "📦 Base de données déjà initialisée — aucune configuration nécessaire."
-    echo "🔥 Démarrage de MariaDB en avant-plan..."
-    exec mariadbd-safe
-    exit 0
-fi
-
 echo "🆕 Aucune base détectée — initialisation en cours..."
-
+SQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+SQL_PASSWORD=$(cat /run/secrets/db_password)
 # Lancer MariaDB
 service mariadb start
 
@@ -46,6 +39,8 @@ mysql --protocol=socket -u root << EOF
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
 EOF
+
+sleep 2
 
 # Utiliser le mot de passe root pour la suite
 mysql -u root -p"${SQL_ROOT_PASSWORD}" << EOF

@@ -7,11 +7,15 @@ services:
       dockerfile: Dockerfile          # 📄 Nom du Dockerfile
     container_name: mariadb     # 🧱 Nom personnalisé du conteneur
     env_file: .env    
+    secrets:
+      - db_password
+      - db_root_password
     environment:
-      MARIADB_ROOT_PASSWORD: ${SQL_ROOT_PASSWORD}
+      # MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
       MARIADB_DATABASE: ${SQL_DATABASE}
       MARIADB_USER: ${SQL_USER}
-      MARIADB_PASSWORD: ${SQL_PASSWORD}
+      # MARIADB_PASSWORD_FILE: /run/secrets/db_password
+
           # 📦 Variables d'environnement à charger
     volumes:                    # 💾 Volume persistant pour les données MariaDB
       - mariadb_data:/var/lib/mysql
@@ -30,6 +34,15 @@ services:
       - wordpress_data:/var/www/html  # 📁 Dossier partagé contenant les fichiers WP
     networks:
       - inception
+    secrets:
+      - wp_password
+      - wp_admin_password
+      - db_password
+      - db_root_password
+    # environment:
+    #   WP_USER_PASSWORD_FILE: /run/secrets/wp_password
+    #   WP_ADMIN_PASSWORD_FILE: /run/secrets/wp_admin_password
+
     depends_on:
       - mariadb               # ⏳ Lance WordPress uniquement si MariaDB est prêt
     restart: unless-stopped
@@ -54,20 +67,19 @@ services:
 # 🔸 Définition des volumes persistants
 volumes:
   mariadb_data:
-    driver: local             # 🛠️ Stocke les données localement
-    driver_opts:
-      type: none
-      o: bind
-      device: ${SQL_DATA_PATH}   # 📍 Point de montage sur l’hôte
-
   wordpress_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${WP_DATA_PATH}      # 📍 Dossier de persistance WordPress
 
 # 🔸 Réseau personnalisé pour que les containers puissent communiquer
 networks:
   inception:
     driver: bridge            # 🧭 Réseau bridge : tous les conteneurs partagent un réseau isolé
+
+secrets:
+  db_password:
+    file: /home/userthom/vault/db_password.txt
+  db_root_password:
+    file: /home/userthom/vault/db_root_password.txt
+  wp_password:
+    file: /home/userthom/vault/wp_password.txt
+  wp_admin_password:
+    file: /home/userthom/vault/wp_admin_password.txt
