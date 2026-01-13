@@ -9,7 +9,7 @@ blank-start:
 	cd srcs && bash ./run_docker.sh --blank-start
 
 .PHONY: clean
-blank-start:
+clean:
 	cd srcs && bash ./run_docker.sh --clean
 
 

@@ -45,6 +45,13 @@ sudo systemctl enable --now docker
 sudo docker run hello-world
 ~~~
 
+To have the docker volumes on the host we need to create /etc/docker/daemon.json and write 
+{
+	"data-root": "/home/thomvan-/data"
+}
+
+and then restart it with sudo systemctl restart docker
+
 ##### secrets
 Secrets must be files containing only the info needed (e.g password, key etc..) their location is defined in the docker-compose file under secrets.
 They are associated to the containers under their respective sections of the docker compose
