@@ -1,29 +1,24 @@
 
 services:
-  # 🔹 Service MariaDB
   mariadb:
-    build:                      # 🔨 Indique comment construire l'image
-      context: ./requirements/mariadb  # 📁 Chemin vers le dossier contenant le Dockerfile
-      dockerfile: Dockerfile          # 📄 Nom du Dockerfile
-    container_name: mariadb     # 🧱 Nom personnalisé du conteneur
+    build:                     
+      context: ./requirements/mariadb 
+      dockerfile: Dockerfile 
+    container_name: mariadb 
     env_file: .env    
     secrets:
       - db_password
       - db_root_password
     environment:
-      # MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      
       MARIADB_DATABASE: ${SQL_DATABASE}
       MARIADB_USER: ${SQL_USER}
-      # MARIADB_PASSWORD_FILE: /run/secrets/db_password
-
-          # 📦 Variables d'environnement à charger
-    volumes:                    # 💾 Volume persistant pour les données MariaDB
+    volumes:                   
       - mariadb_data:/var/lib/mysql
-    networks:                   # 🌐 Réseau Docker (pour que les services puissent se voir)
+    networks:  
       - inception
-    restart: unless-stopped     # 🔁 Redémarre sauf si on l'arrête manuellement
+    restart: unless-stopped  
 
-  # 🔹 Service WordPress (avec PHP-FPM)
   wordpress:
     build:
       context: ./requirements/wordpress
@@ -31,7 +26,7 @@ services:
     container_name: wordpress
     env_file: .env
     volumes:
-      - wordpress_data:/var/www/html  # 📁 Dossier partagé contenant les fichiers WP
+      - wordpress_data:/var/www/html  
     networks:
       - inception
     secrets:
@@ -39,15 +34,11 @@ services:
       - wp_admin_password
       - db_password
       - db_root_password
-    # environment:
-    #   WP_USER_PASSWORD_FILE: /run/secrets/wp_password
-    #   WP_ADMIN_PASSWORD_FILE: /run/secrets/wp_admin_password
 
     depends_on:
-      - mariadb               # ⏳ Lance WordPress uniquement si MariaDB est prêt
+      - mariadb  
     restart: unless-stopped
 
-  # 🔹 Service NGINX
   nginx:
     build:
       context: ./requirements/nginx
@@ -55,24 +46,22 @@ services:
     container_name: nginx
     env_file: .env
     ports:
-      - "443:443"             # 🌍 Port HTTPS exposé localement
+      - "443:443"           
     volumes:
-      - wordpress_data:/var/www/html  # 📁 Partage les fichiers WordPress avec NGINX
+      - wordpress_data:/var/www/html
     networks:
       - inception
     depends_on:
-      - wordpress             # ⏳ NGINX attend que WordPress soit prêt
+      - wordpress        
     restart: unless-stopped
 
-# 🔸 Définition des volumes persistants
 volumes:
   mariadb_data:
   wordpress_data:
 
-# 🔸 Réseau personnalisé pour que les containers puissent communiquer
 networks:
   inception:
-    driver: bridge            # 🧭 Réseau bridge : tous les conteneurs partagent un réseau isolé
+    driver: bridge     
 
 secrets:
   db_password:
